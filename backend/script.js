@@ -2,7 +2,7 @@ const ytdl = require("@distube/ytdl-core");
 const { aleaRNGFactory } = require("number-generator");
 const express = require("express");
 const cors = require("cors");
-const PORT = 3000;
+const PORT = process.env.PORT || 4000;
 
 const app = express();
 app.use(cors());
@@ -18,22 +18,29 @@ app.get("/download", async (req, res) => {
 
   try {
     const videoInfo = await ytdl.getInfo(url);
-    const title = sanitizeFilename(videoInfo.videoDetails.title);
+    const title = sanitizeFilename(videoInfo.videoDetails.title); // make sure this removes all unsafe characters
     const filename = `${title}-${Date.now()}.${format}`;
 
-    // Set headers
+    // Set headers — properly quoted filename
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-    res.setHeader("Content-Type", format === "mp4" ? "video/mp4" : "audio/mpeg");
+    res.setHeader(
+      "Content-Type",
+      format === "mp4" ? "video/mp4" : "audio/mpeg"
+    );
 
     // Choose format
-    const streamOptions = format === "mp3" || format === "audio" ? { filter: "audioonly" } : {};
+    const streamOptions =
+      format === "mp3" || format === "audio"
+        ? { filter: "audioonly" }
+        : { quality: "highest" };
 
     // Stream to response
     ytdl(url, streamOptions).pipe(res);
-
   } catch (err) {
     console.error("Error downloading video:", err.message);
-    return res.status(500).json({ error: "Failed to download video. Try again later." });
+    return res
+      .status(500)
+      .json({ error: "Failed to download video. Try again later." });
   }
 });
 
