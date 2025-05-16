@@ -1,6 +1,9 @@
 # tlip-tube
 A pet project downloading YouTube videos...
 
+![image](https://github.com/user-attachments/assets/7eb7ccdb-b427-455f-882f-c642bcc3e627)
+
+
 
 ## Steps to run locally
 1. git clone the repo
