@@ -2,51 +2,46 @@ import { FaDownload, FaGithub } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { LuDownload } from "react-icons/lu";
 import { useState } from "react";
-import axios from "axios";
+// import axios from "axios";
 import toast from "react-hot-toast";
-import Button from "./components/Button";
+
+const API_URL =
+  import.meta.env.VITE_API_URL === "production"
+    ? "https://tlip-tube.onrender.com/download"
+    : "http://localhost:4000/download";
 
 export default function App() {
   const [url, setUrl] = useState("");
 
-  const handleDownloads = async (e) => {
-    toast(
-      "Downloading... The server might be having a cold start",
-      {
-        icon: "⏳",
-        duration: 2000,
-      }
-    );
-    e.preventDefault();
+  const isValidUrl = (string) => {
     try {
-      if (!url) {
-        alert("Please enter a valid YouTube URL");
-        return;
-      }
-      try {
-        // Redirect to backend download endpoint
-        window.location.href = `http://localhost:3000/download?url=${encodeURIComponent(
-          url
-        )}`;
-      } catch (err) {
-        console.error(err);
-        alert("Error downloading the video");
-      }
-    } catch (error) {
-      console.error("Error downloading video:", error);
-      alert("Failed to download video. Please try again.");
+      new URL(string);
+      return true;
+    } catch {
+      return false;
     }
   };
 
-  // const checkBackend = async () => {
-  //   try {
-  //     const response = await axios.get("http://localhost:3000/");
-  //     alert(response.data);
-  //   } catch (error) {
-  //     console.error("Error checking backend:", error);
-  //     alert("Failed to connect to backend. Please try again.");
-  //   }
-  // };
+  const handleDownloads = async (e) => {
+    e.preventDefault();
+
+    if (!url || !isValidUrl(url)) {
+      toast.error("Please enter a valid video URL");
+      return;
+    }
+
+    toast.loading("Downloading... The server might be warming up", {
+      icon: "⏳",
+      duration: 2000,
+    });
+
+    try {
+      window.location.href = `${API_URL}?url=${encodeURIComponent(url)}`;      
+    } catch (error) {
+      console.error("Error downloading video:", error);
+      toast.error("Failed to download video. Please try again.");
+    }
+  };
 
   return (
     <div className="absolute  inset-0 -z-10 w-full items-center px-5 [background:radial-gradient(125%_125%_at_50%_10%,#000_40%,#63e_100%)] overflow-x-hidden">
@@ -94,10 +89,10 @@ export default function App() {
           <p className="text-2xl text-slate-200 py-10 max-w-2xl mx-auto animate-fade-in">
             Download videos from{" "}
             <span className="text-pink-400 font-semibold">YouTube</span>,{" "}
-            <span className="text-blue-400 font-semibold">Facebook</span>,{" "}
-            <span className="text-slate-50 font-semibold">Twitter</span>,{" "}
-            <span className="text-purple-400 font-semibold">Instagram</span>,
-            and many other websites.
+            <span className="text-blue-400 line-through font-semibold">  Facebook</span>,{" "}
+            <span className="text-slate-50 line-through font-semibold">  Twitter</span>,{" "}
+            <span className="text-purple-400 line-through font-semibold">Instagram</span>,
+            <span className="line-through">and many other websites.</span>
           </p>
         </div>
         <form
